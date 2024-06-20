@@ -1,0 +1,365 @@
+---
+title: "Final Project"
+output: html_document
+author: "Aidan Naito, Tiffany Yau, and Ava Folkman"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggplot2)
+```
+
+
+## Introduction
+
+Over the years, video games have become more and more accepted in the educational sphere, with some schools even integrating games into their curriculum. This is in large part due to countless studies indicating that video games, generally, have a positive effect on a student's education and performance. However, many of these studies broadly analyze video games as a whole, neglecting its many genres and the niche behaviors/habits of its players, leaving the conclusion very broad and not very useful for real world applications and arguments. This investigation aims to find what specific gaming habits and preferences correlate to greater academic success. We also have a side objective of finding any correlation between majors and gaming.. From this investigation, we hope to give insight on the specifics of the impact that gaming have on academic progress. By answering this, we can help establish healthier habits among students to help them achieve greater academic success while not sacrificing too much of the entertainment and fun that comes from video games.
+
+## Methodology
+
+For this investigation, we are primarily attempting to find any correlation between specific gaming habits and academic success with a side objective of finding any correlation between majors and gaming. Our core question is a little bit vague as academic success can mean different things to different people. For instance, to some, academic success is measured by improvement while, to others, its measured purely through GPA. The former of which is very hard to capture in the context of a survey, so, for simplicity sake, we will be measuring academic success by using GPA as the only metric for academic success. So, more specifically, we are attempting to answer what specific gaming habits correlate to higher GPAs. This still encapsulates the spirit of our original question whilst giving us an indisputable answer by the end of our analysis, if all of our data collection goes according to plan. Our side objective is pretty disambiguous in by itself since we are only analyzing trends between the majors and the habits and so we don't need to specify any metric as we aren't measuring anything per say in our analysis for this question.
+
+For our data, we will treat the student population of University of Utah as our population as this is the extent of our capabilities and time. Since the student population is expansive, we can't possibly survey every possible student, so we will need to take a good sample of the student body that is representative as a whole. To achieve this, we are utilizing a slightly modified version of cluster sampling. Our plan is to split the student body by major and take a random sample from each respective major. By doing cluster sampling, we are ensuring that a variety of students get represented in the study, meaning that our sample will be more representative of the student body. However, since we don't have a list of all students in each respective major, this is not simply possible in the context of a pure cluster sample strategy. With this in mind, we modified the plan to gather data from random students at major buildings in campus as we can reasonably assume students of the same major will gather at each major building. We also plan to spread the survey amongst our different class discords, furthering our reach to get a sizable sample. Our data will be collected through a online survey that was made by us. In this survey, we are particularly interested data regarding their gaming habits and preferences, their academic progress, and as well as their study habits. While their study habits might not seem related to the question at hand, we are interested in them because academic progress has a lot of other factors that come into play and it is very much possible that there might not be any gaming habits that correlate to higher academic success. By gathering data on other factors like their study habits, we can help strengthen our findings since these factors won't correlate to any academic success if we are trying to find whether specific gaming habits correlate to academic success. For their gaming habits, we are primarily interested in their time spent gaming, their genres played, reasons for playing, and gaming systems used. For their academic progress, we are only collecting GPA as the only metric to measure academic progress, as stated prior.
+
+Due to the nature of our data, it will be complicated to analyze our data without any modifications since the data we are analyzing are continuous or categorical by their very nature. To simplify our analysis further without compromising our results, we will need to convert our data to become more discrete since discrete data is easier to work with. To do this, we plan to put our data into "bins" based on their GPA. These bins will be going from [1.9, 2.5), [2.5, 3), and so on and so forth. We will split the data between 3.0-4.0 with 4 bins since a bulk of our data is clumped around these ranges. To find any trends between our data and the GPAs, we will primarily be utilizing a bar graph or histogram to more effectively see them since our data is largely categorical and not numerical by themselves. They are numerical when counting their frequency and a barchart and histograms are the most effective in these cases. Then for statistical data, we will be finding means and confidence interval, and for these we will be using the raw data obtained from the survey since we will need raw numbers to accurately find the data. To better display the effects of various game habits, we will be calculating the confidence interval of the overall GPAs to compare with the game habits later on.
+
+The biggest limitations in our study is that we are limited in our capabilities to survey people. There are a total of 86 majors offered at the U and there is no feasible way for us to survey a decent amount of people each of them. This means that we will have gaps in our data and a very large portion of all majors won't get represented in our study. While this is a very important to mention, in terms of our study's integrity, this won't cause too many problem as our core questions don't rely on the condition that all major get represented. However, what this does mean is that our study will, almost certainly, miss some majors where some habits congregate. Furthermore, we are also limited in the number of students we are able to survey by time. We are hoping to get 200 students to participate, but there is no telling how many we are able to get. So our sample size could be much smaller than we anticipate. Our survey also doesn't block duplicate answers, meaning that one person could potentially submit multiple responses and greatly impact the integrity of our data. While this possibility doesn't nullify our data, it is important to keep this in mind as we go through the analysis. 
+
+## Data Collection
+
+
+```{r, echo = FALSE}
+data = read.csv("Gaming Habits of Students.csv")
+data = data %>%
+  rename(major = What.is.your.major., unlistedmajor = Type.your.major.if.not.listed.above., credits = How.many.credits.are.you.taking., GPA = What.is.your.GPA., stress = On.a.scale.of.1.10.how.stressed.are.you.by.school..10.being.the.most.stressed.., year = What.year.in.school.are.you., studyhours = How.many.hours.a.week.do.you.spend.studying.working.on.homework., gaminghours = How.much.time.a.week.do.you.spend.gaming., sleephours = How.many.hours.of.sleep.would.you.say.you.get.a.night., gameconsole = What.are.your.preferred.gaming.systems..What.do.you.play.the.most.., gametype = Which.types.of.games.do.you.play.most., favoritegames = Please.enter.some.of.your.favorite.games., reason = Biggest.reason.for.playing.games., gamingstyle = What.gaming.style.do.you.prefer., performance = Do.you.feel.that.gaming.helps.your.academic.performance.)
+
+df = data.frame(data)
+
+```
+
+```{r, echo = FALSE}
+data1 = read.csv("Gaming Habits of Students.csv")
+
+# People that do not play games are omitted from the research
+data1 <- data1[-c(16, 55, 113, 114, 112),]
+
+Major1 = data$What.is.your.major.
+for (val in 1:nrow(data1)){
+  if (data1$What.is.your.major.[val] == "Not Listed"){
+    Major1[val] = data1$Type.your.major.if.not.listed.above.[val]
+  }
+}
+```
+
+```{r, echo = FALSE}
+Major = data1$What.is.your.major.
+for (val in 1:nrow(data1)){
+  if (data1$What.is.your.major.[val] == "Not Listed"){
+    Major[val] = data1$Type.your.major.if.not.listed.above.[val]
+  }
+}
+```
+
+```{r, echo = FALSE}
+survey_data <- read.csv("Gaming_Habits_of_Students.csv")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+topmajornames = names(table(df$major) > 5)
+topmajors = df[which(df$major %in% topmajornames == TRUE & df$major != "Not Listed"),]
+ggplot(topmajors, aes(x=topmajors$major)) + geom_bar() + scale_x_discrete(label = function(x) stringr::str_trunc(x, 12)) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + xlab("Major") + ylab("Count") + ggtitle("Top Majors Surveyed")
+
+```
+We collected our data according to our data collection strategy, but, as you can see, it didn't pan out as expected. We ended up getting a majority of Engineering and CS majors and very minimum participation from other majors as a comparison. The chunk of engineering majors can be excused since we are encompassing all instances of engineering inside this section, so electrical engineering, mechanical engineering, etc, are all being represented within this chunk. However, the computer science is not as easily excusable, and this is partially a failure of our data collection plan, as some of the major buildings that we surveyed wasn't as homogeneous as we assumed and there were a big variety of majors. For instance, when surveying the physics building, there were only 3 physics majors of the 20 that we surveyed, a majority of them ended up being CS majors. So with this in mind, the data becomes a little more representative, but our sample size is still incredibly small in comparison with the total student population. This isn't that big of an issue in the context of our analysis of the main question, but we will need to go through the analysis with the very real possibility that our data isn't representative of the overall student body, and we will get unexpected distributions. 
+
+Another side effect from our sample is that we can no longer answer our secondary question as easily any more since a huge portion of majors are no longer represented. So we will have to tweak the question to better reflect the data we have at hand. Rather than finding trends between gaming and majors individually, we will split the majors we have at hand to two fields, non-stem and stem. By doing this, we can have an easier time analyzing the data for a more complete and concrete answer and still partially emulate the original object of our secondary question.
+
+## Data Analysis
+
+```{r, echo = FALSE}
+gpaRanges <- c(1.99, 2.5, 3.0, 3.25, 3.5, 3.75, 4.0)
+
+survey_by_gpaRange <- cut(survey_data$GPA, breaks = gpaRanges)
+survey_data$gpaRange <- survey_by_gpaRange
+
+plot(survey_data$gpaRange)
+
+hist(survey_data$GPA, breaks = 20, main = paste("Histogram of GPA"), xlab = "GPA")
+
+baseConf <- t.test(survey_data$GPA, conf.int = T, conf.level = 0.95)
+baseConf
+```
+
+Looking at the distribution of the GPAs, in general, the data is heavily skewed towards the right side of the graph, so much so that the signature bell curve of a normal distribution isn't easily visibile. This tells me that we have a lot of outliers on the right side of the graph that is heavily messing with overall distribution. This can further demonstrated in the grouped gpa version of the distribution. This is all telling us that our sample size isn't big enough to be representative as a larger sample size would have given us that bell curve that we come to expect from normal distribution as per the law of large numbers. The unexpected behavior can also imply a sizeable portion of our surveyees could've submitted inaccurate data. For instance, they could have rounded their grades from 3.9 to 4.0, giving us the behavior shown above. However, we can't necessarily prove this and a larger sample size would have rendered this point useless anyways. In addition, we generated a confidence interval with 95% confidence. We used a student's t-distribution but since the data is not necessarily normal this may prove another limitation. 
+
+## Study Hours vs GPA
+
+```{r, echo = FALSE}
+hours <- c("0-5", "5-10", "10-20", "20-30", "40+")
+
+indexs <- list();
+for (i in 1:5) {
+  indexs[i] <- list(grepl(hours[i],survey_data$StudyHrs))
+}
+
+studyMin <- table(survey_data$gpaRange[unlist(indexs[1])])
+studyMinMed <- table(survey_data$gpaRange[unlist(indexs[2])])
+studyMed <- table(survey_data$gpaRange[unlist(indexs[3])])
+studyMaxMed <- table(survey_data$gpaRange[unlist(indexs[4])])
+studyMax <- table(survey_data$gpaRange[unlist(indexs[5])])
+
+studydf <- data.frame(as.numeric(studyMin), as.numeric(studyMinMed), as.numeric(studyMed), as.numeric(studyMaxMed), as.numeric(studyMax))
+
+barplot(as.matrix(studydf), col = c("red", "blue", "green", "yellow", "purple", "orange"), names.arg = hours, beside = T, main = paste("Hours Spent Studying vs GPA"), xlab = "Studying Hour Ranges")
+legend("topleft", levels(survey_by_gpaRange), pch = 15, col = c("red", "blue", "green", "yellow", "purple", "orange"), bty = "n")
+```
+
+As you can see from this bar chart, there is a small normal bell curve when looking at the higher GPAs. This implies that there might be a correlation between the higher GPAs and the amount of time dedicated towards studying, meaning there is a possibility that study hours and GPA aren't independent from each other. However, we don't have a large enough sample size to see this distinction clearly, meaning that we can't make any definitive remarks on the relationship between GPA and study hours. Because of this, we can't completely say that study hours aren't a factor when we are looking at the distribution of GPAs through the various gaming habits. This has the potential to taint our results, so we will have to go through the analysis with this in mind. 
+
+## Time Spent Gaming vs GPA
+
+```{r}
+gamingIndexs <- list();
+for (i in 1:5) {
+  gamingIndexs[i] <- list(grepl(hours[i],survey_data$GamingHrs))
+}
+
+gameMin <- table(survey_data$gpaRange[unlist(gamingIndexs[1])])
+gameMinMed <- table(survey_data$gpaRange[unlist(gamingIndexs[2])])
+gameMed <- table(survey_data$gpaRange[unlist(gamingIndexs[3])])
+gameMaxMed <- table(survey_data$gpaRange[unlist(gamingIndexs[4])])
+gameMax <- table(survey_data$gpaRange[unlist(gamingIndexs[5])])
+
+gameDF <- data.frame(as.numeric(gameMin), as.numeric(gameMinMed), as.numeric(gameMed), as.numeric(gameMaxMed), as.numeric(gameMax))
+
+barplot(as.matrix(gameDF), col = c("red", "blue", "green", "yellow", "purple", "orange"), names.arg = hours, beside = T, main = paste("Hours Spent Gaming vs GPA"), xlab = "Gaming Hour Ranges")
+legend("topright", levels(survey_by_gpaRange), pch = 15, col = c("red", "blue", "green", "yellow", "purple", "orange"), bty = "n")
+```
+
+Just by initially looking at the relationship between hours spent gaming and GPA there doesn't seem to be a clear correlation. We will investigate this further though. 
+
+```{r, echo = FALSE}
+gamers = df[which(df$gaminghours == "5-10 hours" | df$gaminghours == "10-20 hours" | df$gaminghours == "20-30 hours" | df$gaminghours == "30-40 hours"),]
+nongamers = df[which(df$gaminghours == "0-5 hours"),]
+
+hist(gamers$GPA, col = rgb(1,0,0,0.2), freq = FALSE, breaks = 20, xlab = "GPA", main = paste("GPAs of Gamers vs Nongamers"))
+hist(nongamers$GPA, col = rgb(0,0,1,0.2), freq = FALSE, breaks = 20, add = TRUE)
+legend("topright", legend = c("Gamers", "Nongamers"), col = c(rgb(1,0,0,0.2),rgb(0,0,1,0.2) ), pt.cex = 2, pch = 15)
+
+t.test(gamers$GPA, nongamers$GPA, conf.level = 0.95)
+```
+
+In order to analyze our data further, we divided the sample relatively evenly into gamers and nongamers. While necessary to simplify our model, this also does create some limitations as we cannot directly compare the effect of gaming 0-5 hours versus 10-20 hours versus 40+ hours for example. For the sake of our question though, it should suffice to divide into two groups especially since the groups are both well represented. Directly plotting the distribution of GPAs of gamer against nongamers doesn't yield any clear patterns. Ultimately, to see if one group had a higher GPA on everage than another we used a t-test to determine the confidence interval of the difference in means. Our confidence interval tells us the difference in means is anywhere between -0.17355869 and 0.06773843. Therefore, we do not have evidence that there is a significant difference in GPAs between gamers and nongamers. 
+
+## Preferred Game Genre vs GPA
+
+```{r}
+genres =  c("First-person shooters", "Action-adventure", "RPGs", "Simulation", "Puzzle", "Sandbox", "Survival", "Horror", "Racing", "Strategy", "Sports", "Platformer", "Fighting", "Trivia")
+
+commonGenre <- list()
+for (i in 1:14) {
+  commonGenre[i] <- list(grepl(genres[i],survey_data$GameGenre))
+}
+
+dataContainers <- levels(survey_by_gpaRange)
+genreDF <- data.frame(levels(survey_by_gpaRange))
+
+for (i in 1:14) {
+  genreDF <- cbind(as.numeric(table(survey_data$gpaRange[unlist(commonGenre[i])])), genreDF)
+}
+
+colnames(genreDF) <- rev(genres) 
+
+barplot(as.matrix(genreDF[-15]), pch = 15, bty = "n", main = paste("Grade Distribution of Video Game Genres"), names.arg = rev(genres), col = c("red", "blue", "green", "yellow", "cyan", "magenta"), las = 1, horiz = T, border = "black")
+  legend("bottomright", levels(survey_by_gpaRange), angle = 90, pch = 15, col = c("red", "blue", "green", "yellow", "cyan", "magenta"), bty = "n")
+```
+
+*Genres cut off: First Person Shooters, Action Adventure, Simulation, Platformer
+
+```{r, echo = FALSE}
+FPSgpas <- survey_data$GPA[unlist(commonGenre[1])]
+FPSconf <- t.test(FPSgpas, conf.level = 0.95)
+
+AAgpas <- survey_data$GPA[unlist(commonGenre[2])]
+AAconf <- t.test(AAgpas, conf.level = 0.95)
+
+RPGgpas <- survey_data$GPA[unlist(commonGenre[3])]
+RPGconf <- t.test(RPGgpas, conf.level = 0.95)
+
+SimuGpas <- survey_data$GPA[unlist(commonGenre[4])]
+Simuconf <- t.test(SimuGpas, conf.level = 0.95)
+
+Puzzlegpas <- survey_data$GPA[unlist(commonGenre[5])]
+Puzzleconf <- t.test(Puzzlegpas, conf.level = 0.95)
+
+Sandboxgpas <- survey_data$GPA[unlist(commonGenre[6])]
+Sandboxconf <- t.test(Sandboxgpas, conf.level = 0.95)
+
+SurvivalGpas <- survey_data$GPA[unlist(commonGenre[7])]
+Survivalconf <- t.test(SurvivalGpas, conf.level = 0.95)
+
+Horrorgpas <- survey_data$GPA[unlist(commonGenre[8])]
+Horrorconf <- t.test(Horrorgpas, conf.level = 0.95)
+
+Racinggpas <- survey_data$GPA[unlist(commonGenre[9])]
+Racingconf <- t.test(Racinggpas, conf.level = 0.95)
+
+Stratgpas <- survey_data$GPA[unlist(commonGenre[10])] 
+Stratconf <- t.test(Racinggpas, conf.level = 0.95)
+
+SportsGpas <- survey_data$GPA[unlist(commonGenre[11])]
+Sportsconf <- t.test(SportsGpas, conf.level = 0.95)
+
+PlatformerGpas <- survey_data$GPA[unlist(commonGenre[12])]
+Platformerconf <- t.test(PlatformerGpas, conf.level = 0.95)
+
+FightingGpas <- survey_data$GPA[unlist(commonGenre[13])]
+Fightingconf <- t.test(FightingGpas, conf.level = 0.95)
+
+TriviaGpas <- survey_data$GPA[unlist(commonGenre[14])]
+Triviaconf <- t.test(TriviaGpas, conf.level = 0.95)
+
+ConfIntervalAllGenre <- data.frame(FPS = FPSconf$conf.int, AA = AAconf$conf.int, RPG = RPGconf$conf.int, Simu = Simuconf$conf.int, 
+                                   Puzzle = Puzzleconf$conf.int, Sandbox = Sandboxconf$conf.int, Survival = Survivalconf$conf.int,
+                                   Horror = Horrorconf$conf.int, Racing = Racingconf$conf.int, Strategy = Stratconf$conf.int, 
+                                   Sports = Sportsconf$conf.int, Platformer = Platformerconf$conf.int, Fighting = Fightingconf$conf.int, Trivia = Triviaconf$conf.int,
+                                   Overall = baseConf$conf.int)
+
+boxplot(ConfIntervalAllGenre,  las = 2, ylab = "GPA", main = paste("Confidence Intervals of Game Genres"))
+```
+
+Looking at the bar graph, we can see that each of the game genres have the same proportion of students relative to their population. This is even more apparent when looking at GPAs between 3.5 and 4.0 with each genre have roughly half or more being with that range. This is suggests that there might not be a strong correlation between GPA and video game genres. However, it is important to note that there's some big differences in quantity between each genre with some having as little as 10 responses. This means that the confidence intervals will have a very wide range meaning that the sample size for this genre is too small and it doesn't tell us anything meaningful about the actual population since the range is so large. This is supported by the following graph which graphs the confidence intervals of all game genres. The genres with the most responses generally have the smallest confidence interval while the genres with the least responses have the widest confidence intervals. Furthermore, by looking at this graph, we can see that over half of the game genres have a mean above the overall GPA mean, as indicated by the black line. This can suggest that these game genres might have some correlation to higher GPAs, but, because of the small sample size of each, there isn't strong enough evidence to definitively say that there's a correlation but there's also not enough evidence to say that there is no correlation. However, the RPG genre has a similar confidence interval to the overall and it has a higher mean than the overall. This suggests that RPGs might have a stronger correlation, at least more than the other genres.
+
+## Major and Gaming Habits
+
+```{r, echo = FALSE}
+STEMmajors = df[which(df$major == "Engineering (mechanical, electrical, biomedical, chemical, etc.)" | df$major == "Computer Science" | df$major == "Biology" | df$major == "Medical (Nursing, Pharmacy, Dental, etc)" | df$major == "	
+Physics" | df$major == "Mathematics"),]
+othermajors = df[which(df$major != "Engineering (mechanical, electrical, biomedical, chemical, etc.)" | df$major != "Computer Science" | df$major != "Biology" | df$major != "Medical (Nursing, Pharmacy, Dental, etc)" | df$major != "	
+Physics" | df$major != "Mathematics"),]
+
+STEMandgamers = nrow(df[which((df$major == "Engineering (mechanical, electrical, biomedical, chemical, etc.)" | df$major == "Computer Science" | df$major == "Biology" | df$major == "Medical (Nursing, Pharmacy, Dental, etc)" | df$major == "	
+Physics" | df$major == "Mathematics") & (df$gaminghours == "5-10 hours" | df$gaminghours == "10-20 hours" | df$gaminghours == "20-30 hours" | df$gaminghours == "30-40 hours")),])
+nonSTEMandgamers = nrow(gamers) - STEMandgamers
+STEMandnongamers = nrow(df[which((df$major == "Engineering (mechanical, electrical, biomedical, chemical, etc.)" | df$major == "Computer Science" | df$major == "Biology" | df$major == "Medical (Nursing, Pharmacy, Dental, etc)" | df$major == "	
+Physics" | df$major == "Mathematics") & (df$gaminghours == "0-5 hours")),])
+nonSTEMandnongamers = nrow(nongamers) - STEMandnongamers
+
+majorandgaming = matrix(c(STEMandgamers, STEMandnongamers, nonSTEMandgamers, nonSTEMandnongamers),nrow = 2)
+
+fisher.test(majorandgaming, conf.level = 0.95)
+```
+We also decided to analyze the correlation between major and gaming habits. Already having divided the sample into gamers and nongamers, we divided it into groups based on STEM and non-STEM majors. There was a major limitation with this however. While we were able to categorize most of the majors successfully, the unlisted manual responses proved difficult. We ended up grouping them all as non-STEM since they we couldn't go through them one by one and they were generally divergent enough from the mainstream STEM majors that we felt comfortable with that risk. But this is a limitation to keep in mind. There is a sort of stereotype that STEM majors, more specifically computer science majors, are more likely to be gamers. We wanted to see if this was actually the case. We devised a fisher test to compare the odds of being a gamer if you're a STEM major versus if you're a non-STEM major. The resulting confidence interval is a pretty wide range, saying that the odds ratio of being a STEm major and a gamer compared to a nongamer are between 1.237662 and 5.884855. While we can't be sure of exactly how much higher the odds are, we can conclude that the odds of being a gamer if you're a STEM major are indeed higher than non-STEM majors. 
+
+## How Gaming Style Affects GPA
+
+The preferred gaming style of a person may have an interesting relationship with GPA. For example, Programme for International Student Assessment (PISA) research on "Does performance on a test correlate with video game use?" shows that multi-player gaming, rather than single-player gaming, was linked with lower performance in reading. To prove the truth about whether a person's preferred gaming style correlates with GPA, we decided to compare people's gaming styles with their GPA.
+
+To make our research more concise and accurate, we only looked at the majors that are most represented. Then we compared people's gaming styles with their GPAs, grouped by major. In the below figure, each bar represents the average GPA of people with the same type of preferred gaming style, according to their major.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+Number_of_Major <- as.data.frame(do.call(cbind, aggregate(data1$What.is.your.GPA., list(data1$What.is.your.major.), FUN = length)))
+majorWith1attemps <- Number_of_Major$Group.1[c(Number_of_Major$x == 1)]
+
+Number_of_Major <- Number_of_Major[-c(1, 7, 13, 9),]
+
+gamingstyle = c("Multi-player (alone) gaming", "Multi-player (with a group) gaming", "Single-player gaming")
+
+majornames = Number_of_Major$Group.1
+styleGPA = c()
+
+for (val in majornames) {
+  temp = as.data.frame(do.call(cbind, aggregate(data1[which(data1$What.is.your.major. == val),]$What.is.your.GPA., list(data1[which(data1$What.is.your.major. == val),]$What.gaming.style.do.you.prefer.), FUN = mean)))
+  
+  styleGPA = c(styleGPA, temp)
+}
+
+mean_style_VS_gpa <- as.data.frame(do.call(cbind, aggregate(data1$What.is.your.GPA., list(data1$What.gaming.style.do.you.prefer.), FUN = mean)))
+
+dataFrame <- data.frame(
+  major = majornames,
+  style = rep(gamingstyle, each=9),
+  # manually typed according to styleGPA 
+  rating = c(c(0,0,3.54,3.5,3.198,0,0,3.8,0),
+  c(3.95,3.515875,3.54425,0,3.638875,3.2,3.41033333333333,3.66855555555556,3.495),
+  c(3.7815,3.4,3.4559375,4,3.53017647058824,3.63333333333333,3.65,3.38492307692308,3.6))
+)
+
+ggplot(data=dataFrame, aes(x=major, y=rating, fill=style)) +
+  geom_bar(position='dodge', stat='identity') + scale_x_discrete(label = function(x) stringr::str_trunc(x, 12)) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + theme(legend.key.size = unit(0.5,'cm')) + xlab("Major") + ylab("GPA") + ggtitle("How Gaming Style Affects GPA") + labs(fill='Gaming Styles') + coord_cartesian(ylim=c(3.0,4.0))
+
+
+```
+
+The figure above shows that players who play online with other people have the lowest average GPA (3.45). Of the four majors with representatives who prefer this gaming style, three show they have a worse GPA than people who prefer other gaming styles. On the other hand, people who game with friends have an average GPA of 3.59. Of the nine majors with representatives who prefer this gaming style, four show they have a better average GPA than students who prefer other gaming styles. Single-player gaming with an average GPA of 3.51 does not seem to have an apparent effect on GPA. Of the nine majors with representatives who prefer single-player gaming, two show they have a better GPA than the other gaming styles, while three indicate they have a worse GPA than the other gaming styles. Ultimately, there isn't enough strong evidence to come to any conclusion on how gaming style may affect academic performance. There are many other factors that may be at play, and some of the gaming styles were simply not well represented enough in our sample to conclude anything definitively. We were particularly interested to see if the social opportunities provided by gaming may have had an impact, but with our data this is difficult to comment on especially since it doesn't take into account the other social outlets people may have. 
+
+## Reason for Gaming vs GPA
+
+```{r, echo = FALSE}
+reasons <- c("Fun", "Relax", "Challenge", "Rank", "friends", "All")
+
+reasonIndexs <- list();
+for (i in 1:6) {
+  reasonIndexs[i] <- list(grepl(reasons[i],survey_data$GameReason))
+}
+
+FunReason <-  table(survey_data$gpaRange[unlist(reasonIndexs[1])])
+RelaxReason <- table(survey_data$gpaRange[unlist(reasonIndexs[2])])
+ChallengeReason <- table(survey_data$gpaRange[unlist(reasonIndexs[3])])
+RankReason <- table(survey_data$gpaRange[unlist(reasonIndexs[4])])
+FriendsReason <- table(survey_data$gpaRange[unlist(reasonIndexs[5])])
+AllReason <- table(survey_data$gpaRange[unlist(reasonIndexs[6])])
+
+reasonDF <- data.frame(as.numeric(FunReason), as.numeric(RelaxReason), as.numeric(ChallengeReason), as.numeric(RankReason), as.numeric(FriendsReason), as.numeric(AllReason))
+
+barplot(as.matrix(reasonDF), col = c("red", "blue", "green", "yellow", "purple", "orange"), names.arg = reasons, beside = T, main = paste("Reason for Gaming vs GPA"))
+legend("topright", levels(survey_by_gpaRange), pch = 15, col = c("red", "blue", "green", "yellow", "purple", "orange"), bty = "n")
+```
+```{r}
+FunGpas <- survey_data$GPA[unlist(reasonIndexs[1])]
+FunConf <- t.test(FunGpas, conf.level = 0.95)
+
+RelaxGpas <- survey_data$GPA[unlist(reasonIndexs[2])]
+RelaxConf <- t.test(RelaxGpas, conf.level = 0.95)
+
+ChallengeGpas <- survey_data$GPA[unlist(reasonIndexs[3])]
+ChallengeConf <- t.test(ChallengeGpas, conf.level = 0.95)
+
+ReasonConfInts <- data.frame(Fun = FunConf$conf.int, Relax = RelaxConf$conf.int, Challenge = ChallengeConf$conf.int, Overall = baseConf$conf.int)
+boxplot(ReasonConfInts, ylab = "GPA", main = "Confidence Intervals of Game Reasons")
+```
+
+Looking at these graphs, we can analyze this similar to the genres. We can see that while more people play for fun, we can see that, proportionally, a lot more people get higher GPAs when playing to relax or destress. This is reflected in the graph of the confidence intervals. In this graph, we decided to exclude the other two reasons since there were not sizable enough with a count of less than 5 and it wouldn't be useful to include. However, we can more confidently make conclusions about game reasons and GPA since the confidence interval is relatively small for Fun and Relax. We can see that student's who play for relaxation achieved an average GPA higher than the overall. While the confidence interval is a little wider than the overall, which is expected, the confidence interval is relatively small meaning we can put a little more confidence in the interval since the accuracy increases when the confidence interval is narrow. Furthermore, the confidence interval for Relax is higher than the overall with the lower bound being a higher value than the overall. This means that we can say with 95% confidence that playing games for relaxation might have some correlation to a student's GPA. However, because the sample size is relatively small, we can't say for certain whether this data is reflective or not. 
+
+## Gaming Habits and Stress Level
+
+```{r, echo = FALSE}
+hist(gamers$stress, col = rgb(1,0,0,0.2), freq = FALSE, breaks = 20, xlab = "Stress Level (1-10)", main = paste("Stress Level of Gamers vs Nongamers"))
+hist(nongamers$stress, col = rgb(0,0,1,0.2), freq = FALSE, breaks = 20, add = TRUE)
+legend("topright", legend = c("Gamers", "Nongamers"), col = c(rgb(1,0,0,0.2),rgb(0,0,1,0.2) ), pt.cex = 2, pch = 15)
+
+t.test(gamers$stress, nongamers$stress, conf.level = 0.95)
+
+```
+While not necessarily related to our original question, we were also interested in the general effect gaming may have. While our analysis up to this point doesn't seem to indicate a direct correlation between gaming and GPA, it may still have other beneficial effects on wellbeing that could translate into school performance. In this last section, we found that a lot of people play games to relax and destress. We were curious to see if gaming actually had an effect on self-reported stress levels in students. By initially plotting it out, we can't definitively conclude anything, but it does seem that more nongamers reported the highest stress levels. To further analyze this, we did a t-test. The confidence interval of the difference in means between gamers and nongamers turned out to be between -1.3244381 and -0.1520878. We cannot say that there is a significant difference, but this range definitely does indicate that gamers are less stressed on average than nongamers. This could be due to other reasons as well of course, but it is an interesting pattern and may very well mean that gaming has positive effects to offer that are not directly related to academic performance. 
+
+## Self-reported Effect of Gaming
+
+```{r, echo = FALSE}
+gameHelp <- c(unique(survey_data$GameHelp))
+helpTable <- as.data.frame(table(survey_data$GameHelp))
+
+pie(helpTable$Freq, helpTable$Var1, main = paste("Do Video Games Help Academically"))
+```
+
+From this graph, we can see that less than a quarter of the surveyees believe that video games help with their academics while a vast majority of the surveyees are either unsure or don't believe that video games help with their academic. Despite the popular sentiment, we found data to suggest that certain game habits may lead to a better GPA overall. Furthermore, we found that gamers are generally less stressed about school than their non gaming counterparts, and managing stress levels can be an important factor towards academic success since having high stress levels generally have a negative impact to academics and overall health. This suggests that while many gaming habits might not have a direct impact on academics, their ability to help manage stress during school can be a major help to overall academics. This is further supported by the game reason analysis since people who generally played games for the purpose of destressing or relaxing achieved a higher average GPA than the other gaming reasons and the overall.
+
+
+## Conclusion
+
+In this study, we endeavored to find any correlation between certain video game habits and GPA. By far the biggest limitation to our study was our own capabilities to get a sizable data set that is representative of University of Utah students. Our sample size turned out to be way less than what we expected and made it difficult to effectively analyze the data. Furthermore, the smaller sample size made it very possible that our data isn't representative of our population, and this makes our conclusion drawn from our analysis easy to dispute with a larger and more representative data set. The nature of our data collection also yields some limitations. Using a survey was the best way to conduct this assignment given our resources, but since surveys rely on self-reported answer there can be some inaccuracies that result, particularly in peoples' ability to estimate hours spent on an activity and quantify subjective emotions such as stress. Therefore our results have the potential to be not as reliable as we may have hoped. 
+
+From our analysis, we weren't able to make any definitive conclusions about our primary question, but we did find an interesting trend for our secondary question. We found that the odds of being a gamer in STEM majors were far higher than in non-STEM majors. While this doesn't tell us anything directly, this is a very interesting pattern to potentially investigate further in the future. Now, back to the primary question, we weren't able to make any definitive conclusions about most of our gaming habits since the data set was just too small and not representative enough to reveal any major correlations and due to the possibility that other factors such as hours spent studying were influencing the results. However, we were able to find that certain game genres such as RPGs have the potential to lead to higher GPAs, but this was a pretty weak relationship. More importantly, we found a strong correlation between students who played video games for relaxation and higher GPAs. This is further supported by the fact that, on average, gamers reported to having a lower stress levels than their non-gaming counterparts. This is significant because it all suggests that there isn't a magical range of gaming hours or a particular genre that automatically improves your GPA, but rather that it is more about managing your stress levels through video games.
+
+Generally, our data hasn't revealed any major correlation between gaming and GPAs directly, and this seems to be the reflected by public sentiment. Instead, we have found that video games have other beneficial effects that can ultimately contribute to a higher GPA, such as helping with stress. These effects are more than likely not to be unique towards gaming, but it is important to know that gaming can be an outlet for students to enjoy without hampering their academic progress. 
