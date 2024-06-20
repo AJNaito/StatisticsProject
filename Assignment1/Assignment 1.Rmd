@@ -1,0 +1,176 @@
+---
+title: "Assignment 1"
+author: "Aidan Naito"
+date: "1/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+  Food is one of the biggest points of debate in between the states with residents of each giving their own arguments as to why their cuisine is far superior to the others. Recently, an article has come out declaring San Diego the best place in the nation to dine-in across all types of cuisine and price ranges. However, despite Utah’s reputation of being the culinary odd-ball of the nation, Salt Lake City’s have excellent restaurant options that can hold a light to the very best, the only question is if the restaurants in San Diego are better than those in Salt Lake City. This article is to show the people of this nation that Utah has more to offer to the food world other than fry sauce and it can compare to the wide range of quality food that the best cities in the nation have.
+  
+  Although the question is very subjective, there are many factors that can give us a general consensus if San Diego or Salt Lake City has better restaurants than the other. Utilizing Google Maps, we can get an individual restaurant's ratings and number of reviews and from this we can roughly gauge a its quality and popularity since its rating and number of reviews gives a rough idea of a restaurant's ability to take and serve customers. This gives us the ability to effectively compare the restaurants from Salt Lake City to those in San Diego. Furthermore, Google Maps can also provide a restaurant's cuisine. From this, we can split up the overall sample of the restaurants into smaller portions to compare the restaurant quality at different cuisine types. However, there are some variables that Google Maps can't supply that would help determine overall restaurant quality such as location quality and accessibility. These factors aren't directly supplied by Google Maps and they will have to be obtained through other sources. To gather this data, I plan to use Google Maps filter and navigation options to get a fair assessment of city's restaurants, both cuisine and location wise. From this data, I intend to analyze the rating and review distribution of the city's restaurants as a whole and from there I plan to look more divide the data into sub groups of cuisine to see if one city's restaurants hold a clear superiority over the other.
+	
+## Data
+  
+  Gathering data for this topic will be tricky since it is difficult to get a sample that is representative of the cities as there are thousands of restaurants shared between these two cities. To combat this, I plan to randomly sample 100 restaurants from each city. Using random sampling will ensure that each restaurant is given an equal chance of being chosen and get a decent representation of the overall city. To further ensure a representative sample, of the 100 restaurants, I will get at least 10 restaurants of the following major cuisines: American, Chinese, Italian, Indian, Japanese, Seafood, Mexican, and Thai. This will ensure that my sample is diverse and not too focused on any one cuisine. Furthermore, I will use the filter and navigational features of Google Maps to help focus the search so that I can get the obscure restaurants that won't appear with a general search and that I get all restaurants across the city. I believe that this strategy is the best way to get the very best sample that is representative of the cities with the least risk of getting bias data. For instance, I could not use Google Maps navigational features and filters and this would result in my data getting skewed as it would only result in the most popular restaurants leading an inherit bias and inaccurate information.
+  
+```{r, echo=FALSE}
+rawData = data.frame(read.csv("DataA1.csv"))
+
+#table with no cost
+splitTable <- split(rawData, f = rawData$City)
+SDTable <- data.frame(splitTable[1])
+SLCTable = data.frame(splitTable[2])
+```
+
+```{r}
+head(rawData)
+```
+
+  I have 4 variables on my table, they are the cuisine, rating, number of reviews, and city. The cuisine are primarily there to help categorize and divide up the data into smaller data sets. Ratings and number of reviews are my primary factors that will determine which city has the better restaurants as they are direct representations of a restaurants quality. For instance, I will look at the average ratings and number of reviews across the various cuisines to get a more definitive answer to which city has the better restaurants. The variables are a direct representation of the data gathered in Google Maps. The city variable has no relevance to the overall study other than to better split the data into two tables.
+
+## Analysis
+
+  With the data gathered, I plan to analyze the overall rating and number of reviews of each city's restaurants as a whole. This will give me a general baseline response to the question as to which city has the better restaurants overall. However, this will not be good enough for a definitive answer as one category of restaurants can be masking the shortcomings of another category. Simply put, one specific cuisine could make it seem that the restaurants of one city is better than the other as it has the best 5 star reviews, but, in reality, the city is only better in 1 or 2 cuisines rather than across the board. To combat this, I plan to break up the data into subgroups based on the cuisine they represent to get a more conclusive answeras to which city has the better restaurants.
+
+  
+# Both Cities Summary Statistics:
+Quantile at 0.25, 0.5, 0.75 for both ratings (top) and reviews (bottom)
+```{r, echo=FALSE}
+quantile(rawData$Ratings, prob= c(0.25, 0.5, 0.75))
+
+quantile(rawData$Number.of.Reviews, prob= c(0.25, 0.5, 0.75))
+```
+
+  -Rating Quantile (0.25, 0.5, 0.75)
+```{r, echo=FALSE}
+table(rawData$City[which(rawData$Ratings <= 4.275)])
+
+table(rawData$City[which(rawData$Ratings <= 4.400)])
+
+table(rawData$City[which(rawData$Ratings <= 4.6)])
+```
+
+  -Review Quantile (0.25, 0.5, 0.75)
+```{r, echo=FALSE}
+table(rawData$City[which(rawData$Number.of.Reviews <= 347.75)])
+
+table(rawData$City[which(rawData$Number.of.Reviews <= 618)])
+
+table(rawData$City[which(rawData$Number.of.Reviews <= 1260.75)])
+```
+  The tables represents the relative composition of the data for San Diego and Salt Lake City for ratings and number of reviews at each percentile level, and this roughly tells us which city has the better restaurants as the city with the better restaurants will occupy more of the higher percentiles and vice versa.
+
+# San Diego Summary Statistics:
+  -Ratings (From top to bottom: mean, median, variance, and standard deviation)
+```{r San Diego, echo=FALSE}  
+mean(SDTable$SD.Ratings)
+
+median(SDTable$SD.Ratings)
+
+var(SDTable$SD.Ratings)
+
+sd(SDTable$SD.Ratings)
+```
+
+  -Number of Reviews (From top to bottom: mean and median)
+```{r, echo=FALSE}
+mean(SDTable$SD.Number.of.Reviews)
+
+median(SDTable$SD.Number.of.Reviews)
+
+var(SDTable$SD.Number.of.Reviews)
+
+sd(SDTable$SD.Number.of.Reviews)
+```
+  
+# Salt Lake City Summary Statistics:
+    -Ratings (From top to bottom: mean, median, variance, and standard deviation)
+```{r Salt Lake, echo=FALSE}
+mean(SLCTable$SLC.Ratings)
+
+median(SLCTable$SLC.Ratings)
+
+var(SLCTable$SLC.Ratings)
+
+sd(SLCTable$SLC.Ratings)
+```
+
+  -Number of Reviews (From top to bottom: mean, median, variance, and standard deviation)
+```{r, echo=FALSE}
+mean(SLCTable$SLC.Number.of.Reviews)
+
+median(SLCTable$SLC.Number.of.Reviews)
+
+var(SLCTable$SLC.Number.of.Reviews)
+
+sd(SLCTable$SLC.Number.of.Reviews)
+```
+  
+  Looking at the tables for ratings, we can see that the two cities are incredibly similar in their ratings as they relatively occupy the same space at each percentile level with a difference of only two restaurants between them each step of the way. This is reflected in the city specific statistics as the means and medians are nearly identical with the median being the same and the means are only 0.02 starts away from each other. The table also tells us that the data for both cities are tightly packed with each other since they jump the same amount at each percentile, and this is supported by each city's variance and standard deviation being extremely small. All in all, this means that we can't reliably use the ratings as a whole to decide which city has better restaurants since there's very little difference between the two city's ratings overall.
+  
+  Looking at the tables for number of reviews, the two cities are pretty different as San Diego takes up a huge margin of the 25th percentile and this means that the number of reviews is spread out way more than Salt Lake's number of reviews. This is backed by the variance and standard deviation as they are higher for San Diego than it is for Salt Lake City. The table also tells us that the number of reviews are higher in Salt Lake City as they take up more space in the upper percentile than San Diego, and, as can be seen, the mean and median are bigger in Salt Lake by a sizable margin. This means that the restaurants in Salt Lake City, as a whole, are more popular and gets more customers than San Diego. While it can't tell us definitively that Salt Lake City has better restaurants, it certainly implies that notion.
+
+```{r, echo=FALSE}
+Cuisines = c("Italian", "American", "Thai", "Indian", "Japanese", "Mexican", "Chinese", "Seafood", "Other")
+
+AveragesSDRating <- vector()
+AveragesSDReview <- vector()
+AveragesSLCRating <- vector()
+AveragesSLCReview <- vector()
+for(food in Cuisines) {
+  AveragesSDRating = append(AveragesSDRating, mean(SDTable$SD.Ratings[which(SDTable$SD.Cuisine == food)]))
+  AveragesSDReview = append(AveragesSDReview, mean(SDTable$SD.Number.of.Reviews[which(SDTable$SD.Cuisine == food)]))
+  
+  AveragesSLCRating = append(AveragesSLCRating, mean(SLCTable$SLC.Ratings[which(SLCTable$SLC.Cuisine == food)]))
+  AveragesSLCReview = append(AveragesSLCReview, mean(SLCTable$SLC.Number.of.Reviews[which(SLCTable$SLC.Cuisine == food)]))
+}
+
+data.frame(Cuisines, AveragesSDRating, AveragesSLCRating, AveragesSDReview, AveragesSLCReview)
+```
+  
+  Since the difference of the restaurant's ratings were too close to make a conclusive statement, I divided the data into smaller data sets based on their cuisine to better see the difference between the two cities. Ignoring the smaller differences, Salt Lake City is objectively better in 5 cuisines compared to the 4 for San Diego. This means that, in terms of ratings, Salt Lake City restaurants slightly edges out over San Diego restaurants, and  it's easier to claim the Salt Lake City has better restaurants than San Diego. Furthermore, Salt Lake City beats out San Diego for the number of reviews as well. While the overall difference already suggested that Salt Lake City had more reviews, we can clearly see the extent of this as Salt Lake City beat San Diego in 6 of the 9 cuisines. This further supports that Salt Lake City restaurants are, objectively, more popular than San Diego restaurants.
+
+## Plots
+```{r}
+
+excludeMaxes <- subset(rawData, Number.of.Reviews <= 2000)
+plot(excludeMaxes$Ratings, excludeMaxes$Number.of.Reviews)
+```
+
+*Restaurants with more than 2000 reviews were excluded to better see any trends
+
+  In this scatter plot, I attempted to see if there was any connection between a restaurant's number of reviews and their rating. While there's a small trend as the number of reviews go up as the higher the rating gets, but there's not enough to make that connection completely. This is because there is too many restaurants that have high ratings but they have less reviews than the lower rated restaurants. For example, this can be seen at the 4.7-4.8 as a bunch of their restaurants are gathered around the 500 mark but 4.5 has their gathered above 500.
+
+```{r}
+hist(SDTable$SD.Ratings, breaks = 15)
+```
+```{r}
+hist(SLCTable$SLC.Ratings, breaks = 14)
+```
+  In these graphs, I was looking at the overall distribution of the reviews for each city to check for any interesting behaviors in the distribution of data and to help visualize the summary statistics from each city. In the graph, we can clearly see that the data is extremely similar to each other and that they follow a similar path with each graph peaking around the 4.4 mark. However, it can also be seen that Salt Lake City's ratings are slightly higher than San Diego's ratings, just like the summary statistics has suggested.
+
+```{r}
+counts <- table(rawData$City, rawData$Ratings)
+barplot(counts, main="Ratings vs City", xlab="Rating", col=c("darkblue", "red"), legend=rownames(counts), beside = TRUE)
+```
+```{r}
+counts <- table(rawData$City, cut(rawData$Number.of.Reviews, breaks = c(8000, 4000, 2000, 1000, 750, 500, 250, 100)))
+barplot(counts, main="Reviews vs City", xlab="Reviews", col=c("darkblue", "red"), legend=rownames(counts), beside = TRUE)
+```
+
+*Goes from (100, 250], (250, 500], (500, 750], (750, 1000], (1000,2000], (2000, 4000], (4000, 8000]
+
+  In these graphs, I directly compare the ratings and reviews of each city against each other to better visualize the overall difference between them. In the ratings graph, it is hard to tell which city holds superiority over the other and this places more importance on the averages table from above as it makes it easier to see where Salt Lake City pulls ahead of San Diego. However, in the reviews graph, it becomes clear how Salt Lake City pulls ahead of San Diego since Salt Lake City is the majority in almost all of the higher ranges with exception to the last one. It clearly shows that Salt Lake City restaurants are more popular since it they get far more reviews than San Diego restaurants.
+
+## Conclusion 
+  Naturally, there are many shortcomings and flaws in the study, especially in the data collection. I felt that getting a representative sample of the restaurants from each city was extremely difficult and I feel like my samples are a bit off. This is mostly because Google Maps, by design, will filter out many locations as there's too much data to display at once, but this makes it hard to get a truly random sample of the city since I don't have all the data in hand to give all restaurants an equal chance. This problem became a much bigger when getting a sample for San Diego since the city is over 3x larger than Salt Lake City and I had to navigate around the city to even attempt to give each restaurant an equal chance, and I had to overlook some high quality restaurants but it is possible that I "over-corrected" my data and got too much lower quality restaurants. Furthermore, my data may possibly suffer from a slight bias towards Salt Lake City since I currently live there, so it is possible that when I was collecting a sample of San Diego that I was choosing too many lower rated and reviewed rather than getting the higher rated ones leading to a skewed picture. 
+  
+  My findings strongly suggests that Salt Lake City restaurants are better overall since they are higher rated and more popular based on the number of reviews. I feel that my data can be better since my limitations are too problem some to ignore and I feel like my data strategy could be changed to gather better data to work with. Despite the limitations, I feel that my data is relatively strong enough and it appropriately defends my current findings for my analysis. 
+  
+DISCLAIMER: As a representative of Salt Lake City Restaurateur Association, the data might contain some elements of bias

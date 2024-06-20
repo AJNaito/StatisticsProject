@@ -1,0 +1,184 @@
+---
+title: "Assignment3"
+author: "Aidan Naito"
+date: "3/20/2022"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+In today's modern world, environmental concerns have become the forefront in political debate and in the public sphere, especially concerns about global warming or climate change with many news stories coming out about increasingly hotter and colder month or years being recorded state by state. However, these statements are too broad for the everyday reader to completely understand since such concepts, like temperature, can be highly subjective from person to person. The aim of this investigation is to quantify and contextualize these broad statements and make useful comparisons from past climates to the present day, for the state of Utah. More specifically, I want to be able to answer related questions such as, if Utah is drier than it was 80 years ago, the average low temperature for January, and what are the hottest and coldest year on record. By answering such questions, it will allow for better understanding and awareness of the underlying issues in the public sphere and can and, hopefully, will lead to increased efforts in finding various solutions to the problem.
+
+## Data Discovery
+
+For this investigation, I will be researching the weather in Utah. For my data, I will be utilizing daily weather summaries from the National Oceanic and Atmospheric Association (NOAA). In these summaries, NOAA collects various data variables such as precipitation, weather types, and air temperature -- all of which are collected with few obstacles as possible. For instance, air temperature is collected in an isolated are kept isolated from direct solar impact, meaning that the recorded temperature is as accurate as it can be. NOAA's data sets are very expansive with millions of daily weather reports from hundreds of weather stations, both active and abandoned. While exploring NOAA's database, I found that data for each weather station aren't complete meaning that there is some data missing for other days, which makes sense since data can be lost especially when some weather stations have been collecting for over 100 years. I also found that NOAA splits their data by region and so many different cities are grouped together and represented by a 50+ weather stations. For example, Salt Lake City is grouped together with other cities like Alta and Cottonwood and is represented by 91 weather stations. Furthermore, it is important to note that there are some blind spots in the data and some regions of Utah isn't represented, but overall NOAA covers a substantial area of Utah that is enough for my purposes. 
+
+## Methodology
+
+For my data, it is important to note that as expansive as NOAA's data is, it is only a sample of all weather in Utah, but since, it is the biggest data source that I have available, I will be treating this as my population for the purpose of this investigation. That said, I can't download the entirety of my population because, not only is it impractical, there is too much data to work with and download. In fact, NOAA won't even allow you to download the datasets for 91 weather stations, so there is not chance that I can download the daily weather reports for all weather stations across the entirety of Utah. So I will need to take a small sample of the NOAA population that is representative of the state. My strategy is to split the state into 3 separate categories North, South, and Central regions, as these represent the distinct climate of Utah, and I will take a single weather station from each. Furthermore, I will restrict the possible weather stations to those that have data sets that span $at least$ 80 years and those that have data sets with nearly 100% coverage to minimize the missing data. While this does make the sample size incredibly small, I believe that it would be negligible if the three weather stations come from distinct regions of Utah which I defined prior. However, it will be important to keep the small sample size in mind when doing the analysis later on. 
+
+A big restriction in this investigation is the data variables available to me from the daily weather summaries. Prior to looking at the summaries, I was particularly interested in humidity levels and temperatures since they are most relevant to my core questions as humidity is a direct measure of dryness of an area and temperatures are good representations of hotness and coldness. However, NOAA doesn't have a measure of humidity in their daily summaries. To replace humidity, I was then interested in precipitation levels as they can also be used to measure the dryness of an area since lower precipitation is a very good indicator of a drier area. For temperature, I will have to take the mean between the max and minimum temperatures since I don't know when the temperature taken at observation was taken. This is important because I can't gauge how well the observation is representative or unrepresentative of the day's average temperature, so I chose to disregard this temperature to ensure that my data isn't tainted by this data value. 
+
+My core questions are very ambiguous since, as stated before, concepts such as hot, cold, and dry are very subjective when it comes to weather. So before I enact my data collection plan and attempt to solve them, I need to rewrite my questions to disambiguate what my questions are asking. In other words, I need to be more specific and impose limits to my questions to avoid any misunderstandings with my answers. For my first question, "is Utah drier than it was 80 years ago" can very easily be rewritten to "are precipitation rates in Utah higher than they were 80 years ago?" This still captures the essence of what the original question was asking, while giving me the ability to get actual numerical data to work with and gives me an indisputable answer. The second question is a bit more tricky since "low" temperature is incredibly open ended because each person experiences temperature differently. For example, 40 degrees is very cold to someone that's from Hawaii but this can be average temperature to someone in Utah. To disambiguate this, I am going to define "low" temperatures as the lowest recorded temperatures for each day. I believe that this is a fair interpretation of the question since it still captures the spirit of the original while setting up rigid definitions that gives us only one correct answer, or, at the very least, narrow down the correct answer to a very small range. So rewritten, this question is "what is the average lowest temperatures recorded for the month of January in Salt Lake City?" For the last question, I need to constrain the time table to 80 years since that is the only temperatures I have to work with. Furthermore, I am defining "hottest" and "coldest" years as the highest average temperatures across all months. So rewritten, this question is "what is the record highest and lowest average temperature years in the last 80 years?" While this may result in giving a year that may not have the highest or lowest temperature recorded, it will give the highest average.
+
+For each of the questions, I need a way to turn my data into results and I will use various statistical methods in order to answer the core questions. For the first question, I plan to take the average of the precipitation levels from 80 years ago and present year. I will be using 2021 as present year since 2022 is still in development and will not provide accurate results. For my analysis, I will be comparing the precipitation levels from each region with their past/present counterparts with a bar graph. This will give me a very rough idea whether the past or present is drier than the other since the drier time will consistently lower than the other. However, I will further confirm my results by comparing the average precipitation rates of the two years. For the second question, with the average low temperatures of January, I will plot them on a histogram to see their distribution. This is to confirm my hunch that the distribution should be normal since the average low temperatures should converge to one data point, the sample mean. Then from here, I can infer what the population mean or the average low temperature of January in Utah by using student's t distribution which requires or assumes that my distribution is roughly normal. For the last question, I will be taking the average temperature year by year by both region and Utah as a whole. I will be using both for comparisons for the analysis, in which I will use bar graphs to figure out the hottest and coldest years in Utah in the last 80 years. I will also be omitting the current year, 2022, as it will skew my results since we only experienced the coldest part of the year as of now
+
+## Data Collection and Analysis
+
+```{r}
+MiddleUT <- read.csv("MidUtah.csv")
+MiddleUT <- subset(MiddleUT, select = c(DATE, PRCP, SNOW, TMAX, TMIN, TOBS))
+MiddleUT$DATE <- as.Date(MiddleUT$DATE, "%Y-%m-%d")
+
+UpperUT <- read.csv("UpperUT.csv")
+UpperUT <- subset(UpperUT, select = c(DATE, PRCP, SNOW, TMAX, TMIN, TOBS))
+UpperUT$DATE <- as.Date(UpperUT$DATE, "%Y-%m-%d")
+
+LowerUT <- read.csv("LowerUT.csv")
+LowerUT <- subset(LowerUT, select = c(DATE, PRCP, SNOW, TMAX, TMIN, TOBS))
+LowerUT$DATE <- as.Date(LowerUT$DATE, "%Y-%m-%d")
+```
+
+My data from the upper, middle and lower sections of Utah came from Logan, Cottonwood Weir, and St. George respectively. The data sets from each weather station didn't have 100% coverage. This means that I can't directly work with the three data sets as they will have different days that are missing so I will have to work around this complication. I will work around this by summarizing each data set into years, this allows me to work with the three data sets directly. Although the coverage is high enough to make their impact negligible, I will drop them from any calculations that I am running so I can simplify the process even more. For my second question, Salt Lake City will be represented by Cottonwood Weir weather station since Salt Lake City and Cottonwood are grouped together in the same region under NOAA and, consequently, are represented by the same weather station. 
+
+```{r}
+head(UpperUT)
+
+head(MiddleUT)
+
+head(LowerUT)
+```
+
+### Are the Precipitation Levels Today Lower Than They Were 80 Years Ago in Utah?
+
+```{r}
+MidDataByYear <- split(MiddleUT, format(MiddleUT$DATE, '%Y')) 
+UpDataByYear <- split(UpperUT, format(UpperUT$DATE, '%Y'))
+LowDataByYear <- split(LowerUT, format(LowerUT$DATE, '%Y'))
+
+getPRCPMean <- function(df) {
+  return(mean(df$PRCP, na.rm = TRUE))
+}
+
+PastPrecipMid <- array(unlist(lapply(split(MidDataByYear$`1942`, format(MidDataByYear$`1942`$DATE, '%m')), getPRCPMean)))
+PresentPrecipMid <- array(unlist(lapply(split(MidDataByYear$`2021`, format(MidDataByYear$`2021`$DATE, '%m')), getPRCPMean)))
+
+PastPrecipUpper <- array(unlist(lapply(split(UpDataByYear$`1942`, format(UpDataByYear$`1942`$DATE, '%m')), getPRCPMean)))
+PresentPrecipUpper <- array(unlist(lapply(split(UpDataByYear$`2021`, format(UpDataByYear$`2021`$DATE, '%m')), getPRCPMean)))
+
+PastPrecipLower <- array(unlist(lapply(split(LowDataByYear$`1942`, format(LowDataByYear$`1942`$DATE, '%m')), getPRCPMean)))
+PresentPrecipLower <- array(unlist(lapply(split(LowDataByYear$`2021`, format(LowDataByYear$`2021`$DATE, '%m')), getPRCPMean)))
+
+UtahPast <- (PastPrecipMid + PastPrecipUpper + PastPrecipLower) / 3
+UtahPresent <- (PresentPrecipMid + PresentPrecipUpper + PresentPrecipLower) /3 
+
+months <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+barplot(UtahPast, names.arg = months, xlab= "Months", ylab= "Avg Precipitation", main= paste("Precipitation Levels in 1942 vs 2021"), col = rgb(1, 0, 0, alpha= 0.2))
+barplot(UtahPresent, col = rgb(0, 1, 0, alpha = 0.2), add = TRUE)
+```
+*1942 = Red, 2021 = Green
+```{r}
+mean(UtahPast)
+mean(UtahPresent)
+```
+*1942 = Top, 2021 = Bottom
+
+Looking at the graph, I can infer that the precipitation levels between the past and present will be roughly the same with the past being slightly drier than the present. This is because the past and present precipitation levels surpass each other in equal parts, meaning that one year isn't excessively drier than the other, but, in the months where the present has higher precipitation levels, we can see that the difference between them far exceed the difference when the past has higher precipitation levels. Looking at the means taken, we can see that this inference is correct and that Utah wasn't drier today than it was in the past. However, despite my evidence, there is still the possibility that my evidence is faulty and, consequently, my answer would be wrong. This is because I am only analyzing a single year into account for the past and present, there is the possibility that either year could have been excessively wet or dry. Furthermore, since I am only sampling three weather stations out of the hundreds that were available, both active and deactivated, this makes it a very small sample. This means that there is a very sizable possibility that my data might not be representative of the state of Utah as a whole, despite the many data points that I have ready to work with. This makes my evidence weaker since smaller data sets tend to give worse results or increases the margin of error. However, I took precautions to decrease this margin of error and chances of lower quality results by taking those three weather stations from very distinct regions of Utah from the North, South, and Central parts of Utah. While this doesn't completely negate the chance of error, I believe that my evidence is substantial enough to uphold my answer which is: Utah's precipitation levels are not lower in the present than they were in 80 years ago. So this means that Utah isn't drier than it was 80 years ago.
+
+### What is the average low temperature for the month of January in Salt Lake City
+
+```{r}
+getMaxMean <- function(df) {
+  return(mean(df$TMAX, na.rm = TRUE))
+}
+
+getMinMean <- function(df) {
+  return(mean(df$TMIN, na.rm=TRUE))
+}
+
+getJanMin <- function(df) {
+  list <- df[which(grepl("-01-", df$DATE, fixed = TRUE)), names(df)]
+  return (getMinMean(list))
+}
+
+MiddleJanTempMin <- array(unlist(lapply(MidDataByYear[names(MidDataByYear)], getJanMin)))
+
+hist(MiddleJanTempMin[-81], col=rgb(1, 0, 0, alpha=0.2), main= paste("Histogram of Low Tempeartures in January in Salt Lake City"), xlab="Temperature",xlim = c(0, 40), breaks = 20, freq = FALSE)
+```
+
+```{r}
+n = length(MiddleJanTempMin)
+t_stat_avg <- qt(0.995, df=n - 1)
+x_bar_avg <- mean(MiddleJanTempMin, na.rm=TRUE)
+s_avg <- sd(MiddleJanTempMin, na.rm=TRUE)
+s_xbar_avg <- s_avg/sqrt(n)
+
+skewness = 3 * (x_bar_avg - median(MiddleJanTempMin)) / s_avg
+c(x_bar_avg - t_stat_avg * s_xbar_avg, x_bar_avg + t_stat_avg*s_xbar_avg)
+```
+
+Looking at the histogram, we can see that the temperature is very roughly following a normal distribution. It is reasonable that the histogram doesn't follow a normal distribution to a tee since this is a small sample size since we are only representing the entirety of Salt Lake City with only a single weather station. Furthermore, there is a slight skewness that can be seen when you look at the histogram, implying that the data can be unreliable and will impact my confidence intervals negatively. However, upon further investigation, the skewness of the graph is -0.1820 meaning that the graph is relatively symmetrical since it lies between -0.5 to 0.5. Fortunately, this means that my confidence intervals will not be majorly effected. Utilizing the data, I calculated a 99% confidence interval for the average low temperature of January in Utah which gave us a low temperature of 20.339 degree and a high of 23.25 degrees. This means that we can say with 99% confidence that the average temperature of January in Utah is within this range and that the values in this range will contain the average. This is further supported by the relatively small range of the confidence interval since a more unreliable data set would generate a wider interval. So, from this, we can confidently say that the average low temperature in January of Salt Lake City is around 21.5 degrees with a ~1.5 degrees buffer on both ends. 
+
+### What are the hottest and coldest years on record in the last 80 years
+
+```{r}
+TempMaxMidByYear <- array(unlist(lapply(MidDataByYear[names(MidDataByYear)], getMaxMean)))
+TempMaxUpperByYear <- array(unlist(lapply(UpDataByYear[names(UpDataByYear)], getMaxMean)))
+TempMaxLowerByYear <- array(unlist(lapply(LowDataByYear[names(LowDataByYear)], getMaxMean)))
+
+TempMinMidByYear <- array(unlist(lapply(MidDataByYear[names(MidDataByYear)], getMinMean)))
+TempMinUpperByYear <- array(unlist(lapply(UpDataByYear[names(UpDataByYear)], getMinMean)))
+TempMinLowerByYear <- array(unlist(lapply(LowDataByYear[names(LowDataByYear)], getMinMean)))
+
+UtahAvgHighTemp <- (TempMaxMidByYear[-81] + TempMaxUpperByYear[-81] + TempMaxLowerByYear[-81]) / 3
+UtahAvgLowTemp <- (TempMinMidByYear[-81] + TempMinUpperByYear[-81] + TempMinLowerByYear[-81]) / 3
+
+hist(UtahAvgHighTemp, col = rgb(1, 0, 0, alpha=0.2), main = paste("Histogram of Average High Temperatures"), freq = FALSE)
+hist(UtahAvgLowTemp, col = rgb(0, 1, 0, alpha = 0.2), main= paste("Histogram of Average Low Temperatures"), freq = FALSE, breaks = 20)
+```
+I plotted the average highs and lows temperatures to help visualize the distribution.
+```{r}
+Years <- 1942:2021
+plot(Years, UtahAvgHighTemp, main=paste("Average High Temperatures in Utah vs Years"))
+plot(Years, UtahAvgLowTemp, main=paste("Average Low Temperatures in Utah vs Years"))
+```
+
+Hottest Year:
+```{r}
+n = length(UtahAvgHighTemp)
+t_stat_highavg <- qt(0.995, df=n - 1)
+x_bar_highavg <- mean(UtahAvgHighTemp, na.rm=TRUE)
+s_highavg <- sd(UtahAvgHighTemp, na.rm=TRUE)
+s_xbar_highavg <- s_highavg/sqrt(n)
+
+c(x_bar_highavg - t_stat_highavg * s_xbar_highavg, x_bar_highavg + t_stat_highavg*s_xbar_highavg)
+max(UtahAvgHighTemp)
+1941 + which.max(UtahAvgHighTemp)
+```
+
+Looking at the histogram, we can see that the high average temperatures are roughly normal, even more so if we ignore the outlier year. This means that we can apply student's t distribution since it assumes that distribution is normal or at least roughly normal. Utilizing t distribution, I calculated a 99% confidence interval which turned out to be 66.83 degrees to 67.76 degrees. Normally, this wouldn't be that useful to finding the hottest average year since we already have the highest temperature year in Utah, 2000 at 69.93 degrees, but this enables me to reinforce my answer since the confidence interval for this distribution is fairly narrow. This means that the evidence that I have backing my answer is fairly strong as weaker evidence would've given me a much wider range. Furthermore, the year 2000 is far outside of this range meaning that it is far from the expected yearly average, supporting the notion that the year 2000 is hotter than the average year. Although, it is incredibly possible that other years such as 1954 or 2021 to be the hottest year since we have established that our data may not be the best, I believe that the aforementioned evidence significantly supports that our data is strong enough to support 2000 being the hottest year on average in Utah.  
+
+Lowest Year:
+```{r}
+n = length(UtahAvgLowTemp)
+t_stat_lowavg <- qt(0.995, df=n - 1)
+x_bar_lowavg <- mean(UtahAvgLowTemp, na.rm=TRUE)
+s_lowavg <- sd(UtahAvgLowTemp, na.rm=TRUE)
+s_xbar_lowavg <- s_lowavg/sqrt(n)
+skewness = 3*(x_bar_lowavg - median(UtahAvgLowTemp)) / s_lowavg
+
+c(x_bar_lowavg - t_stat_lowavg * s_xbar_lowavg, x_bar_lowavg + t_stat_lowavg*s_xbar_lowavg)
+min(UtahAvgLowTemp)
+1941 + which.min(UtahAvgLowTemp)
+```
+
+Looking at the histogram, we can see that, just like the average high temperatures, the average low temperatures are roughly normal. However, unlike the high temperatures, the histogram for the low temperatures are slightly skewed to the left meaning that it is slightly asymmetrical and this can interfere with the results of t distribution as t distribution relies that normal distribution is relatively symmetrical to compute both sides of the confidence interval. Despite the looks, the skewness was found to be within the interval: -0.5 and 0.5, with a value of -0.00363, which implies that the data is fairly symmetrical, so the t distribution and the calculated confidence intervals should be pretty accurate since our data is fairly even. With the t distribution, I found the confidence interval to be within 42.0956 degrees and 43.0611 degrees. This is a fairly narrow range and this implies that our data if fairly reliable as data that is shoddy or inaccurate will give a wider range. So, with this in mind, I believe that the evidence supports that the lowest average year was 2014 for the aforementioned reasons. Furthermore, 2014 was outside of the confidence interval by around three degrees meaning that it is far from the expected yearly average and this supports that 2014 was colder than the average year. 
+
+## Conclusion
+
+From my analysis, I was able to produce an answer for each of my questions. I found that Utah isn't drier than it was 80 years ago, the average low temperature in January in Salt Lake City is 21.5 degrees, and that the hottest and coldest years in Utah is 2000 and 2014, respectively. By far the biggest limitations that infected my investigation was my own capabilities and the amount of data I could support. My sample size is very small, with only 3 stations, and this means that my data could be non representative of the Utah or Salt Lake as a whole meaning that my answers could be easily contested by a much larger data set. My last big limitation was the data available to me since I wanted to use humidity as a measurement of dryness of an area instead of precipitation. 
+
